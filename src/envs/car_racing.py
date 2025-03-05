@@ -37,7 +37,7 @@ class CarRacingWithInfoWrapper(gym.Wrapper):
         steering = (car.wheels[0].joint.angle + car.wheels[1].joint.angle) / 2  # 前輪の舵角平均
 
         # 車両情報を1つの配列にまとめる
-        vehicle_state = np.array([throttle, brake, steering, velocity], dtype=np.float32)
+        vehicle_state = np.array([throttle, brake, steering, velocity / 100.0], dtype=np.float32)
 
         return {
             "image": resized_image,
