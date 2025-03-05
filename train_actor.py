@@ -39,7 +39,7 @@ class Trainer:
         self.vae = get_vae(vae_cfg=config.vae).to(self.device).eval()
 
         # TensorBoardの初期化
-        self.writer = SummaryWriter(log_dir=config.get("log_dir", "./Actor/logs"))
+        self.writer = SummaryWriter(log_dir=config.get("log_dir", "./logs"))
 
         self.max_episodes = config.max_episodes
         self.max_steps = config.max_steps
@@ -74,12 +74,12 @@ class Trainer:
                     if step % self.log_interval == 0:
                         reconstucted_img = reconstucted_img.squeeze(0).float().cpu().detach()
                         global_step = episode * self.max_steps + step
-                        self.writer.add_image("Reconstructed/Image", reconstucted_img, global_step)
+                        self.writer.add_image("Actor/Reconstructed/Image", reconstucted_img, global_step)
 
                     with Timer("Agent Action"):
                         state_vec = torch.tensor(obs_vec, dtype=torch.float32).unsqueeze(0).to(self.device)
                         action = self.agent.select_action(state_z=state, state_vec=state_vec, evaluate=False)
-                    self.writer.add_histogram("Action/Distribution", action, episode)
+                    self.writer.add_histogram("Actor/Action/Distribution", action, episode)
 
                     with Timer("Environment Step"):
                         next_obs, reward, terminated, truncated, info = self.env.step(action)
@@ -103,7 +103,7 @@ class Trainer:
 
                         # 動的に key を処理して TensorBoard に記録
                         for key, value in update_info.items():
-                            self.writer.add_scalar(f"Loss/{key}", value, global_step)
+                            self.writer.add_scalar(f"Actor/Loss/{key}", value, global_step)
 
 
                     obs = next_obs
@@ -115,7 +115,7 @@ class Trainer:
                         break
 
                 episode_rewards.append(episode_reward)
-                self.writer.add_scalar("Reward/Episode", episode_reward, episode)
+                self.writer.add_scalar("Actor/Reward/Episode", episode_reward, episode)
 
                 # トップモデルの保存処理（上位3件を保存）
                 os.makedirs(self.save_ckpt_dir, exist_ok=True)
@@ -198,7 +198,7 @@ class Trainer:
 
         # 平均評価報酬をTensorBoardに記録
         avg_eval_reward = sum(eval_rewards) / len(eval_rewards)
-        self.writer.add_scalar("Evaluation/Reward", avg_eval_reward, current_episode)
+        self.writer.add_scalar("Actor/Evaluation/Reward", avg_eval_reward, current_episode)
         print(f"Average Evaluation Reward at Episode {current_episode}: {avg_eval_reward:.2f}")
 
         # 最初の評価エピソードの動画をTensorBoardに記録
@@ -207,7 +207,7 @@ class Trainer:
             video_tensor = torch.stack(frames, dim=0)  # [T, C, H, W]
             # TensorBoardのadd_videoは形状[B, T, C, H, W]を期待するので1次元追加
             video_tensor = video_tensor.unsqueeze(0)
-            self.writer.add_video("Evaluation/Run", video_tensor, current_episode, fps=60)
+            self.writer.add_video("Actor/Evaluation/Run", video_tensor, current_episode, fps=60)
 
 @hydra.main(config_path='config', config_name='train', version_base='1.2')
 def main(config: DictConfig):
