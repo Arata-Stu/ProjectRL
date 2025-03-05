@@ -39,7 +39,7 @@ class Trainer:
         self.vae = get_vae(vae_cfg=config.vae).to(self.device).eval()
 
         # TensorBoardの初期化
-        self.writer = SummaryWriter(log_dir=config.get("log_dir", "./logs"))
+        self.writer = SummaryWriter(log_dir=config.get("log_dir", "./logs/Actor"))
 
         self.max_episodes = config.max_episodes
         self.max_steps = config.max_steps
