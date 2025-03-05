@@ -1,0 +1,15 @@
+torch
+torchvision
+lightning
+tensorboard
+numpy
+hydra-core
+omegaconf
+opencv-python
+pycocotools
+
+gymnasium
+Box2D
+swig
+pygame
+moviepy==1.0.3
