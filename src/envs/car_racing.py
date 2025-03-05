@@ -31,13 +31,13 @@ class CarRacingWithInfoWrapper(gym.Wrapper):
         # 速度の大きさ (スカラー値)
         velocity = np.linalg.norm(car.hull.linearVelocity)
 
+        # メソッドを適切に呼び出す
+        throttle = car.gas() if callable(car.gas) else car.gas
+        brake = car.brake() if callable(car.brake) else car.brake
+        steering = car.wheels[0].joint.angle  # これは float なのでそのまま使う
+
         # 車両情報を1つの配列にまとめる
-        vehicle_state = np.array([
-            car.gas,                     # アクセル (throttle)
-            car.brake,                   # ブレーキ (brake)
-            car.wheels[0].joint.angle,   # 操舵角 (steering)
-            velocity                     # 速度の大きさ (velocity)
-        ], dtype=np.float32)
+        vehicle_state = np.array([throttle, brake, steering, velocity], dtype=np.float32)
 
         return {
             "image": resized_image,
