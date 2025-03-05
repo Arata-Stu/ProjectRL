@@ -85,13 +85,15 @@ class Trainer:
                         next_obs, reward, terminated, truncated, info = self.env.step(action)
 
                     next_obs_img = next_obs["image"].copy()
+                    next_obs_vec = next_obs["vehicle"]
                     with Timer("Next Encoding"):
                         next_obs_img = numpy2img_tensor(next_obs_img).unsqueeze(0).to(self.device)
                         next_state = self.vae.obs_to_z(next_obs_img)
 
                     with Timer("Buffer Add"):
                         done = terminated or truncated
-                        self.buffer.add(state, action, reward, next_state, done)
+                        next_state_vec = torch.tensor(next_obs_vec, dtype=torch.float32).unsqueeze(0).to(self.device)
+                        self.buffer.add(state, state_vec, action, reward, next_state, next_state_vec, done)
 
                     episode_reward += reward
 

@@ -37,7 +37,7 @@ class SACAgent(BaseAgent):
             self.load(ckpt_path)
 
     def select_action(self, state_z: torch.Tensor, state_vec: torch.Tensor, evaluate: bool=False) -> np.ndarray:
-        state = torch.cat([state_z, state_vec], dim=-1).unsqueeze(0)
+        state = torch.cat([state_z, state_vec], dim=-1)
         with torch.no_grad():
             if evaluate:
                 _, _, action = self.actor.sample(state)

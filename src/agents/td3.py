@@ -57,7 +57,7 @@ class TD3Agent(BaseAgent):
         - `evaluate=False` の場合、ノイズを加えて探索
         """
 
-        state = torch.cat([state_z, state_vec], dim=1).to(self.device)
+        state = torch.cat([state_z, state_vec], dim=-1).to(self.device)
         with torch.no_grad():
             action = self.actor(state)
         action = action.cpu().numpy()[0]
