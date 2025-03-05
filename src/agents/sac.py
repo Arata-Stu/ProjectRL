@@ -57,8 +57,8 @@ class SACAgent(BaseAgent):
 
         next_state = torch.cat([next_state_z, next_state_vec], dim=-1)
         with torch.no_grad():
-            next_action, next_log_prob, _ = self.actor.sample(next_state, next_state_vec)
-            target_q1, target_q2 = self.critic_target(next_state, next_state_vec, next_action)
+            next_action, next_log_prob, _ = self.actor.sample(next_state)
+            target_q1, target_q2 = self.critic_target(next_state, next_action)
             target_q = torch.min(target_q1, target_q2) - torch.exp(self.log_alpha) * next_log_prob
             target_q = reward + (1 - done) * self.gamma * target_q
 
@@ -70,8 +70,8 @@ class SACAgent(BaseAgent):
         critic_loss.backward()
         self.critic_optimizer.step()
 
-        action_new, log_prob, _ = self.actor.sample(state, state_vec)
-        q1_new, q2_new = self.critic(state, state_vec, action_new)
+        action_new, log_prob, _ = self.actor.sample(state)
+        q1_new, q2_new = self.critic(state, action_new)
         actor_loss = (torch.exp(self.log_alpha) * log_prob - torch.min(q1_new, q2_new)).mean()
 
         self.actor_optimizer.zero_grad()
